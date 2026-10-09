@@ -1,11 +1,11 @@
-"""Run all three BCC SQS benchmark methods for N_RUNS repeats each.
+"""Run all three SQS benchmark methods for N_RUNS repeats each.
 
-Executes tdb_gen_bcc_mcsqs.py, tdb_gen_bcc_scraps.py, and
-tdb_gen_bcc_random.py in sequence for run indices 1 through N_RUNS,
+Executes sqs_bench_mcsqs.py, sqs_bench_scraps.py, and
+sqs_bench_random.py in sequence for run indices 1 through N_RUNS,
 injecting the run_index variable via AST patching (same approach as
 BLADE's full_framework.py). Each run produces an independent SQS
 structure (unique phase name, unique output directory) so results
-can be compared statistically by compare_bcc_methods.py.
+can be compared statistically by compare_methods.py.
 
 Usage:
     python run_all.py                 # all 3 methods, 10 runs each
@@ -25,14 +25,14 @@ from pathlib import Path
 # Which methods to run and how many repeats
 # ------------------------------------------------------------------
 _method_scripts: dict[str, str] = {
-    "mcsqs": "tdb_gen_bcc_mcsqs.py",
-    "scraps": "tdb_gen_bcc_scraps.py",
-    "random": "tdb_gen_bcc_random.py",
+    "mcsqs": "sqs_bench_mcsqs.py",
+    "scraps": "sqs_bench_scraps.py",
+    "random": "sqs_bench_random.py",
 }
 
 
 def _run_script_with_index(script_path: Path, run_index: int) -> None:
-    """Execute a tdb_gen_bcc_*.py script with a specific run_index injected.
+    """Execute a sqs_bench_*.py script with a specific run_index injected.
 
     Uses AST patching to replace the run_index top-level assignment before
     execution, matching the full_framework.py approach in BLADE examples.

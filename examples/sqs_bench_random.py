@@ -1,4 +1,4 @@
-"""BCC NbVW benchmark — random SQS structures → TDB fitting.
+"""BCC NbVW benchmark — random SQS structures.
 
 Mirrors tdb_gen_bcc_mcsqs.py, replacing BladeSQS with randomly generated
 structures. Atoms are randomly assigned to M-sites according to target

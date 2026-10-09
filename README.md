@@ -20,9 +20,9 @@ This benchmark runs three SQS generation methods independently across N repeats 
 
 | Method | Script | Description |
 |---|---|---|
-| **mcsqs** | `examples/tdb_gen_bcc_mcsqs.py` | ATAT `mcsqs` — simulated-annealing cluster-correlation optimizer |
-| **SCRAPS** | `examples/tdb_gen_bcc_scraps.py` | SCRAPS cuckoo-search SRO optimizer |
-| **Random** | `examples/tdb_gen_bcc_random.py` | Random atom assignment — baseline |
+| **mcsqs** | `examples/sqs_bench_mcsqs.py` | ATAT `mcsqs` — simulated-annealing cluster-correlation optimizer |
+| **SCRAPS** | `examples/sqs_bench_scraps.py` | SCRAPS cuckoo-search SRO optimizer |
+| **Random** | `examples/sqs_bench_random.py` | Random atom assignment — baseline |
 
 Demonstrated on equimolar BCC NbVW (48-atom 4×3×2 supercell, ORB MLIP). Each driver script contains a clearly labelled **Structure definition** block — change `structure_label`, `lattice_a`, `coords`, `phase_list`, and `sqsgen_levels` to target any BLADE-supported prototype.
 
@@ -74,9 +74,9 @@ Each run injects `run_index` via AST patching (same approach as BLADE's `full_fr
 ### Single run
 
 ```bash
-python examples/tdb_gen_bcc_mcsqs.py
-python examples/tdb_gen_bcc_scraps.py
-python examples/tdb_gen_bcc_random.py
+python examples/sqs_bench_mcsqs.py
+python examples/sqs_bench_scraps.py
+python examples/sqs_bench_random.py
 ```
 
 ### Analysis

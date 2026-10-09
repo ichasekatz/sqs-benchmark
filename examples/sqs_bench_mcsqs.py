@@ -1,11 +1,11 @@
-"""BCC NbVW benchmark — SQS generation via SCRAPS → TDB fitting.
+"""BCC NbVW benchmark — SQS generation via ATAT mcsqs.
 
-Mirrors tdb_gen_bcc_mcsqs.py exactly, replacing BladeSQS with ScrapsSQSGen.
-Output goes to Files/BCC_Benchmark/Comps_scraps_run{run_index}/ so all
+Single-run driver. Set run_index to distinguish repeated runs.
+Output goes to Files/BCC_Benchmark/Comps_mcsqs_run{run_index}/ so all
 three method runs can coexist without clobbering each other.
 
 Run standalone:
-    python tdb_gen_bcc_scraps.py
+    python tdb_gen_bcc_mcsqs.py
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from pathlib import Path
 
 from blade.analysis.blade_visual import BladeVisualizer
 from blade.tools.blade_compositions import BladeCompositions
-from blade.tools.blade_scraps_gen import ScrapsSQSGen
+from blade.tools.blade_sqsgen import BladeSQS
 from blade.tools.blade_tdb_gen import BladeTDBGen
 from pycalphad import Database
 
@@ -26,10 +26,6 @@ path0 = Path("/Users/chasekatz/Desktop/School/Research")
 path1 = path0 / "BLADE"
 path2 = path0 / "PhaseForge" / "PhaseForge" / "atat" / "data" / "sqsdb"
 paths = [path0, path1, path2]
-
-SCRAPS_REPO = path0 / "SCRAPS" / "scraps-perpair"
-SCRAPS_BIN = SCRAPS_REPO / "SCRAPs" / "scraps"
-SCRAPS_TOOLS = SCRAPS_REPO / "tools"
 
 # ------------------------------------------------------------------
 # Run index — increment per repeat to keep phase names unique
@@ -80,9 +76,11 @@ tdb_params = {
 # structure_label : short tag written into phase keys and output dirs
 # primary_elements: metals to include; lattice_a must cover each one
 # lattice_a       : element → equilibrium lattice parameter (Å)
-# phases          : BLADE prototype dict — coords encodes Wyckoff sites
+# phases          : BLADE prototype dict — coords encodes Wyckoff sites;
+#                   FCC has 4 sites (0,0,0 + 3 face centres),
+#                   HCP needs a≠c and two coords per sublattice
 # phase_list      : generator_name = BLADE's CALPHAD generator key,
-#                   supercell_size = tile counts (adjust for ~48 atoms)
+#                   supercell_size = tile counts (adjust to reach ~48 atoms)
 # sqsgen_levels   : equimolar ternary → [1/3, 1/3, 1/3]
 # ------------------------------------------------------------------
 structure_label = "BCC"
@@ -107,7 +105,7 @@ _active = [el for el in primary_elements if el in lattice_a]
 _avg_a = sum(lattice_a[el] for el in _active) / len(_active)
 print(f"{structure_label} lattice estimate: a={_avg_a:.4f} Å  (avg of {_active})")
 
-_phase_key = f"{structure_label}scraps{run_index}"
+_phase_key = f"{structure_label}mcsqs{run_index}"
 
 terms_in: dict | None = {
     _phase_key: "1,0:1,0\n2,2:1,0\n",
@@ -116,6 +114,7 @@ mult_in: dict | None = None
 sublattice_map: dict | None = None
 sqsgen_in: dict | None = None
 fixed_compositions: dict | None = None
+system_overrides: dict | None = None
 run_movie = False
 
 # ------------------------------------------------------------------
@@ -130,7 +129,7 @@ phases: dict[str, dict] = {
         "beta": 90,
         "gamma": 90,
         "vectors": "1 0 0\n0 1 0\n0 0 1\n",
-        # BCC: 2 sites (corner + body-centre), both sublattice "a"
+        # BCC: 2 sites per unit cell (corner + body-centre), both on sublattice "a"
         # FCC: 4 sites — "0 0 0 a\n0.5 0.5 0 a\n0 0.5 0.5 a\n0.5 0 0.5 a\n"
         # HCP: 2 sites — set b=a, c=a*1.633, alpha/beta=90, gamma=120
         "coords": ("0.000000 0.000000 0.000000 a\n0.500000 0.500000 0.500000 a\n"),
@@ -156,13 +155,19 @@ sqsgen_levels = [
 ]
 
 # ------------------------------------------------------------------
-# SCRAPS parameters
+# mcsqs run parameters
 # ------------------------------------------------------------------
-scraps_ranks = 10
-auto_budget = 3  # 1=basic, 2=thorough, 3=exhaustive
-max_shellnum = 4
-# BCC has only one variable sublattice — spectator workaround not needed
-fix_multibasis_sublattice = False
+mcsqs_params = {
+    "time": 100,
+    "cutoff_mode": "nn",
+    "2": 5,
+    "3": 4,
+    "4": 3,
+    "wr": 20,
+    "wn": 0.75,
+    "wd": 1,
+    "parallel_runs": 20,
+}
 
 # ------------------------------------------------------------------
 # 1. Generate compositions
@@ -183,35 +188,28 @@ print(f"Compositions ({len(composition_list)} total): {composition_list}")
 print(f"System sizes: {unique_len_comps}")
 
 # ------------------------------------------------------------------
-# 2. Generate SQS structures via SCRAPS
+# 2. Generate SQS structures
 # ------------------------------------------------------------------
 if run_sqs:
     for specific_phase in phase_list:
         for len_comp in unique_len_comps:
             lattice = specific_phase["lattice"]
-            sqs_gen = ScrapsSQSGen(
+            sqs_gen = BladeSQS(
                 phases_dict=phases[lattice],
                 sqsgen_levels=sqsgen_levels,
                 level=level,
                 len_comp=len_comp,
                 skip_existing_sqs=skip_existing_sqs,
-                sublattice_map=sublattice_map,
                 sqsgen_in=sqsgen_in.get(lattice) if sqsgen_in else None,
                 fixed_compositions=fixed_compositions,
-                scraps_bin=SCRAPS_BIN,
-                scraps_tools=SCRAPS_TOOLS,
-                ranks=scraps_ranks,
-                auto_budget=auto_budget,
-                max_shellnum=max_shellnum,
-                fix_multibasis_sublattice=fix_multibasis_sublattice,
             )
-            params = {"super_cell_size": specific_phase["supercell_size"]}
+            params = mcsqs_params | {"super_cell_size": specific_phase["supercell_size"]}
             sqs_gen.sqs_gen(phase=specific_phase, paths=paths, params=params)
 
 # ------------------------------------------------------------------
 # 3. Fit TDB databases
 # ------------------------------------------------------------------
-comps_dir = path1 / "Files" / f"{structure_label}_Benchmark" / f"Comps_scraps_run{run_index}"
+comps_dir = path1 / "Files" / f"{structure_label}_Benchmark" / f"Comps_mcsqs_run{run_index}"
 
 if run_tdb:
     gen = BladeTDBGen(
@@ -252,7 +250,7 @@ for _comp, comp_filt in zip(composition_list, filt_comp_list):
     comp_dir = comps_dir / comp_name
     if not comp_dir.exists():
         continue
-    phase_name = f"{phase_list[0]['lattice']}_{len(comp_filt)}"
+    phase_name = f"{phase_list[0]['generator_name']}1_{len(comp_filt)}"
     tdb_phases = [phase_name]
     plot_paths = (
         comp_dir / f"{comp_name}_Gibbs_Energy.png",
