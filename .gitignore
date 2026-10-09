@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+pip-wheel-metadata/
+
+# Virtual environments / package managers
+.venv/
+venv/
+.uv/
+uv.lock
+
+# Type checking
+.ty_cache/
+.mypy_cache/
+.dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Benchmark run outputs (large; reproduce locally)
+BCC_Benchmark/
+BCC_test_*/
+Files/
+SQS/

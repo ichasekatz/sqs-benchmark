@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "SQS Benchmark"
+version: 0.1.0
+date-released: "2026-10-09"
+license: GPL-3.0-or-later
+repository-code: "https://github.com/ichasekatz/sqs-benchmark"
+doi: "TODO: mint a Zenodo DOI via https://zenodo.org/account/settings/github/"
+url: "https://github.com/ichasekatz/sqs-benchmark"
+abstract: >
+  Statistical benchmark comparing three SQS generation methods — ATAT mcsqs,
+  SCRAPS (cuckoo-search SRO optimizer), and random assignment — demonstrated for
+  the equimolar BCC NbVW ternary system (48-atom 4×3×2 supercell), with MLIP
+  relaxation and CALPHAD TDB fitting via BLADE. Parameterized for any
+  BLADE-supported crystal prototype.
+authors:
+  - family-names: "Katz"
+    given-names: "Chase"
+    email: ichasekatz@tamu.edu
+    orcid: "https://orcid.org/TODO"
