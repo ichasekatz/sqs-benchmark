@@ -1,4 +1,4 @@
-"""Compare BCC NbVW SQS method quality across N_RUNS repeats: mcsqs / SCRAPS / Random.
+"""Compare BCC NbVW SQS method quality across N_RUNS repeats: mcsqs / SCRAPS / mscraps / Random.
 
 For every bestsqs.out this script:
   1. Reads the structure and computes Warren-Cowley pair-fraction deviation.
@@ -87,9 +87,17 @@ methods: dict[str, dict] = {
         "names": [f"{structure_label}scraps{i}" for i in range(1, n_runs + 1)],
         "comps": [benchmark_base / f"Comps_scraps_run{i}" for i in range(1, n_runs + 1)],
     },
+    "mscraps": {
+        "names": [f"{structure_label}mscraps{i}" for i in range(1, n_runs + 1)],
+        "comps": [benchmark_base / f"Comps_mscraps_run{i}" for i in range(1, n_runs + 1)],
+    },
     "Random": {
         "names": [f"{structure_label}random{i}" for i in range(1, n_runs + 1)],
         "comps": [benchmark_base / f"Comps_random_run{i}" for i in range(1, n_runs + 1)],
+    },
+    "icet": {
+        "names": [f"{structure_label}icet{i}" for i in range(1, n_runs + 1)],
+        "comps": [benchmark_base / f"Comps_icet_run{i}" for i in range(1, n_runs + 1)],
     },
 }
 
@@ -596,7 +604,7 @@ if len(mcsqs_sub):
 # Plotting
 # ------------------------------------------------------------------
 method_order = list(methods.keys())
-colors = {"mcsqs": "steelblue", "SCRAPS": "darkorange", "Random": "crimson"}
+colors = {"mcsqs": "steelblue", "SCRAPS": "darkorange", "mscraps": "#55A868", "Random": "crimson"}
 
 fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 fig.suptitle(

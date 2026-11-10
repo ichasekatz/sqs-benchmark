@@ -14,6 +14,7 @@ classifiers = [
     "Programming Language :: Python",
 ]
 dependencies = [
+    "icet>=4.0",
     "matplotlib>=3.9.0",
     "numpy>=1.24.0",
     "pandas>=2.0.0",

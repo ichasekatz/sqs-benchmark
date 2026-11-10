@@ -1,17 +1,17 @@
-"""Run all three SQS benchmark methods for N_RUNS repeats each.
+"""Run all SQS benchmark methods for N_RUNS repeats each.
 
-Executes sqs_bench_mcsqs.py, sqs_bench_scraps.py, and
-sqs_bench_random.py in sequence for run indices 1 through N_RUNS,
+Executes sqs_bench_mcsqs.py, sqs_bench_scraps.py, sqs_bench_mscraps.py,
+and sqs_bench_random.py in sequence for run indices 1 through N_RUNS,
 injecting the run_index variable via AST patching (same approach as
 BLADE's full_framework.py). Each run produces an independent SQS
 structure (unique phase name, unique output directory) so results
 can be compared statistically by compare_methods.py.
 
 Usage:
-    python run_all.py                 # all 3 methods, 10 runs each
-    python run_all.py --n-runs 5      # 5 runs each
-    python run_all.py --methods mcsqs scraps   # only selected methods
-    python run_all.py --start 3       # resume from run 3
+    python run_all.py                         # all 4 methods, 10 runs each
+    python run_all.py --n-runs 5              # 5 runs each
+    python run_all.py --methods mcsqs mscraps # only selected methods
+    python run_all.py --start 3               # resume from run 3
 """
 
 from __future__ import annotations
@@ -27,7 +27,9 @@ from pathlib import Path
 _method_scripts: dict[str, str] = {
     "mcsqs": "sqs_bench_mcsqs.py",
     "scraps": "sqs_bench_scraps.py",
+    "mscraps": "sqs_bench_mscraps.py",
     "random": "sqs_bench_random.py",
+    "icet": "sqs_bench_icet.py",
 }
 
 
