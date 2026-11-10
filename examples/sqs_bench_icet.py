@@ -22,7 +22,6 @@ import warnings
 from collections import Counter
 from pathlib import Path
 
-import numpy as np
 from ase import Atoms
 from ase.cell import Cell
 from blade.analysis.blade_visual import BladeVisualizer
@@ -276,7 +275,8 @@ def _generate_icet_sqs(
         from icet.tools.structure_generation import generate_sqs_from_supercells
 
     prim = _build_bcc_prim(a)
-    chem_syms = [[el for el in elements if f > 0], [el for el in elements if f > 0]]
+    active_els = [el for el, frac in zip(elements, fracs) if frac > 0]
+    chem_syms = [active_els, active_els]
     cs = ClusterSpace(prim, cutoffs=_icet_cutoffs, chemical_symbols=chem_syms)
     supercell = prim.repeat(list(supercell_size))
     target = {el: float(f) for el, f in zip(elements, fracs) if f > 0}
